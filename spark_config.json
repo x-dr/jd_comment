@@ -1,0 +1,8 @@
+{
+    "on": false,
+    "appid": "xxx",
+    "api_key": "70513cxxxxxxb561eef1a",
+    "api_secret": "NDRkZTdxxxx0N2Fm",
+    "Spark_url": "wss://spark-api.xf-yun.com/v3.1/chat",
+    "domain": "generalv3"
+}
