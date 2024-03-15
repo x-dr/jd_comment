@@ -74,7 +74,25 @@ def format_style_seqs(msg, use_style=True):
         msg = msg.replace('$ITALIC', '')
         msg = msg.replace('$UNDERLINED', '')
 
-
+comment_result = ["考虑买这个$之前我是有担心过的，因为我不知道$的质量和品质怎么样，但是看了评论后我就放心了。",
+                      "买这个$之前我是有看过好几家店，最后看到这家店的评价不错就决定在这家店买 ",
+                      "看了好几家店，也对比了好几家店，最后发现还是这一家的$评价最好。",
+                      "看来看去最后还是选择了这家。",
+                      "之前在这家店也买过其他东西，感觉不错，这次又来啦。",
+                      "这家的$的真是太好用了，用了第一次就还想再用一次。",
+                      "收到货后我非常的开心，因为$的质量和品质真的非常的好！",
+                      "拆开包装后惊艳到我了，这就是我想要的$!",
+                      "快递超快！包装的很好！！很喜欢！！！",
+                      "包装的很精美！$的质量和品质非常不错！",
+                      "收到快递后迫不及待的拆了包装。$我真的是非常喜欢",
+                      "真是一次难忘的购物，这辈子没见过这么好用的东西！！",
+                      "经过了这次愉快的购物，我决定如果下次我还要买$的话，我一定会再来这家店买的。",
+                      "不错不错！",
+                      "我会推荐想买$的朋友也来这家店里买",
+                      "真是一次愉快的购物！",
+                      "大大的好评!以后买$再来你们店！(￣▽￣)",
+                      "真是一次愉快的购物！"
+                      ]
 class StyleFormatter(logging.Formatter):
     def __init__(self, fmt=None, datefmt=None, use_style=True):
         logging.Formatter.__init__(self, fmt, datefmt)
@@ -90,7 +108,9 @@ class StyleFormatter(logging.Formatter):
             rcd.levelname = levelname_with_color
         return logging.Formatter.format(self, rcd)
 
+
 # 评价生成
+
 def generation(pname, _class=0, _type=1, opts=None):
     spark_config = json_load("spark_config.json")
     if spark_config["on"]:
@@ -103,61 +123,71 @@ def generation(pname, _class=0, _type=1, opts=None):
             print(msg)
             return 5, msg.strip()
         else:
-            items = ['商品名']
-            items.clear()
-            items.append(pname)
-            opts['logger'].debug('Items: %s', items)
-            loop_times = len(items)
-            opts['logger'].debug('Total loop times: %d', loop_times)
-            for i, item in enumerate(items):
-                opts['logger'].debug('Loop: %d / %d', i + 1, loop_times)
-                opts['logger'].debug('Current item: %s', item)
-                spider = jdspider.JDSpider(item, ck)
-                opts['logger'].debug('Successfully created a JDSpider instance')
-                # 增加对增值服务的评价鉴别
-                if "赠品" in pname or "非实物" in pname or "京服无忧" in pname or "权益" in pname or "非卖品" in pname or "增值服务" in pname:
-                    result = [
-                        "赠品挺好的。",
-                        "很贴心，能有这样免费赠送的赠品!",
-                        "正好想着要不要多买一份增值服务，没想到还有这样的赠品。",
-                        "赠品正合我意。",
-                        "赠品很好，挺不错的。",
-                        "本来买了产品以后还有些担心。但是看到赠品以后就放心了。",
-                        "不论品质如何，至少说明店家对客的态度很好！",
-                        "我很喜欢这些商品！",
-                        "我对于商品的附加值很在乎，恰好这些赠品为这件商品提供了这样的的附加值，这令我很满意。"
-                        "感觉现在的网购环境环境越来越好了，以前网购的时候还没有过么多贴心的赠品和增值服务",
-                        "第一次用京东，被这种赠品和增值服物的良好态度感动到了。",
-                        "赠品还行。"
-                    ]
-                else:
-                    result = spider.getData(4, 3)  # 这里可以自己改
-                opts['logger'].debug('Result: %s', result)
-
-            # class 0是评价 1是提取id
-            try:
-                name = jieba.analyse.textrank(pname, topK=5, allowPOS='n')[0]
-                opts['logger'].debug('Name: %s', name)
-            except Exception as e:
-                #    opts['logger'].warning(
-                #        'jieba textrank analysis error: %s, name fallback to "宝贝"', e)
-                name = "宝贝"
-            if _class == 1:
-                opts['logger'].debug('_class is 1. Directly return name')
-                return name
+            num = min(6, len(comment_result))
+            comments = ''.join(random.sample(comment_result, num))
+            return 5, comments.replace("$", pname)           
+    else:
+        # print(pname)
+        opts = opts or {}
+        items = ['商品名']
+        items.clear()
+        items.append(pname)
+        # print(items)
+        opts['logger'].debug('Items: %s', items)
+        loop_times = len(items)
+        opts['logger'].debug('Total loop times: %d', loop_times)
+        for i, item in enumerate(items):
+            print("===")
+            print(i,item)
+            opts['logger'].debug('Loop: %d / %d', i + 1, loop_times)
+            opts['logger'].debug('Current item: %s', item)
+            spider = jdspider.JDSpider(item,ck)
+            opts['logger'].debug('Successfully created a JDSpider instance')
+            # 增加对增值服务的评价鉴别
+            if "赠品" in pname or "非实物" in pname or "京服无忧" in pname or "权益" in pname or "非卖品" in pname or "增值服务" in pname:
+                result = [
+                    "赠品挺好的。",
+                    "很贴心，能有这样免费赠送的赠品!",
+                    "正好想着要不要多买一份增值服务，没想到还有这样的赠品。",
+                    "赠品正合我意。",
+                    "赠品很好，挺不错的。",
+                    "本来买了产品以后还有些担心。但是看到赠品以后就放心了。",
+                    "不论品质如何，至少说明店家对客的态度很好！",
+                    "我很喜欢这些商品！",
+                    "我对于商品的附加值很在乎，恰好这些赠品为这件商品提供了这样的的附加值，这令我很满意。"
+                    "感觉现在的网购环境环境越来越好了，以前网购的时候还没有过么多贴心的赠品和增值服务",
+                    "第一次用京东，被这种赠品和增值服物的良好态度感动到了。",
+                    "赠品还行。"
+                ]
             else:
-                if _type == 1:
-                    num = 6
-                elif _type == 0:
-                    num = 4
-                num = min(num, len(result))
-                # use `.join()` to improve efficiency
-                comments = ''.join(random.sample(result, num))
-                opts['logger'].debug('_type: %d', _type)
-                opts['logger'].debug('num: %d', num)
-                opts['logger'].debug('Raw comments: %s', comments)
+                result = spider.getData(4, 3)  # 这里可以自己改
+            opts['logger'].debug('Result: %s', result)
 
-                return 5, comments.replace("$", name)
+        # class 0是评价 1是提取id
+        try:
+            name = jieba.analyse.textrank(pname, topK=5, allowPOS='n')[0]
+            opts['logger'].debug('Name: %s', name)
+        except Exception as e:
+        #    opts['logger'].warning(
+        #        'jieba textrank analysis error: %s, name fallback to "宝贝"', e)
+            name = "宝贝"
+        if _class == 1:
+            opts['logger'].debug('_class is 1. Directly return name')
+            return name
+        else:
+            if _type == 1:
+                num = 6
+            elif _type == 0:
+                num = 4
+            num = min(num, len(result))
+            # use `.join()` to improve efficiency
+            comments = ''.join(random.sample(result, num))
+            opts['logger'].debug('_type: %d', _type)
+            opts['logger'].debug('num: %d', num)
+            opts['logger'].debug('Raw comments: %s', comments)
+
+            return 5, comments.replace("$", name)
+
 
 # 查询全部评价
 

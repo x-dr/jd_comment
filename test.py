@@ -10,12 +10,12 @@ def test_spark():
         if msg_json['code'] == 1:
             msg = msg_json['data']
             spark_api.answer = ""
-            print(msg)
+            # print(msg)
             return 5, msg.strip()
         else:
             msg = "error"
             return 5, msg.strip()
     else:
         print("1")
-
-print(test_spark()[1])
+xing, Str = test_spark()
+print(xing, Str)
